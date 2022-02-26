@@ -4,7 +4,7 @@
 #include <QMainWindow>
 
 namespace Ui {
-class WavReader;
+class WavWindow;
 }
 
 class WavWindow : public QMainWindow
@@ -16,7 +16,10 @@ public:
     ~WavWindow();
 
 private:
-    Ui::WavReader *ui;
+    Ui::WavWindow *ui;
+
+private slots:
+    void on_selectFileButton_clicked();
 };
 
 #endif // WAVWINDOW_H
