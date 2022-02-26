@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
+ <class>WavReader</class>
+ <widget class="QMainWindow" name="WavReader">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -14,30 +14,17 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="openPngButton">
+   <widget class="QRadioButton" name="radioButton">
     <property name="geometry">
      <rect>
-      <x>410</x>
+      <x>220</x>
       <y>220</y>
-      <width>100</width>
-      <height>51</height>
+      <width>99</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>PNG</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="openWavButton">
-    <property name="geometry">
-     <rect>
-      <x>240</x>
-      <y>230</y>
-      <width>100</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>WAV</string>
+     <string>RadioButton</string>
     </property>
    </widget>
   </widget>
