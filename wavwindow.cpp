@@ -5,6 +5,11 @@
 #include <QMessageBox>
 #include <QDataStream>
 #include <iostream>
+#include <string>
+
+using std::cout;
+using std::endl;
+using std::string;
 
 WavWindow::WavWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -33,8 +38,32 @@ void WavWindow::on_selectFileButton_clicked() {
     // Read the file's data into memory.
     QDataStream in(&file);
 
-    // temp code
-    qint32 x = 0;
-    in >> x;
-    std::cout << x << std::endl;
+    // Extract the RIFF chunk descriptor.
+    string riff = "";
+    char ch;
+    for (int i = 0; i < 4; i++) {
+        // TODO: Error handling/checking.
+        in >> ch;
+        riff += ch;
+    }
+    cout << "riff == " << riff << endl;
+
+    in.setByteOrder(QDataStream::LittleEndian);
+    quint32 file_size;
+    in >> file_size;
+    cout << "file_size == " << file_size << endl;
+    cout << "file_size in KiB == " << (file_size >> 10) << endl;
+
+    in.setByteOrder(QDataStream::BigEndian);
+    string wave = "";
+    for (int i = 0; i < 4; i++) {
+        in >> ch;
+        wave += ch;
+    }
+    cout << "wave == " << wave << endl;
+
+    // Extract the "fmt " subchunk.
+
+
+    file.close();
 }
