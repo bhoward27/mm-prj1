@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdlib>
 
 
 using std::cout;
@@ -41,7 +42,6 @@ void WavWindow::on_selectFileButton_clicked() {
     if (!file.open(QIODevice::ReadOnly)) {
         QMessageBox::warning(this, "Warning", "Could not open file: " + file.errorString());
     }
-    setWindowTitle(file_name);
 
     WAV wav = WAV();
     WAVReadResult res = wav.read(file);
@@ -75,13 +75,17 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
     // TODO: Simply plot the samples as lines instead of doing interpolation between points.
     QLineSeries* chan1 = nullptr;
     QLineSeries* chan2 = nullptr;
+    QString title = "";
+    title += QString("TOTAL Number of Samples = ") + QString::number(len);
+    title += QString(" - Sampling Rate = ") + QString::number(wav.sample_rate) + QString(" Hz");
     switch (wav.num_channels) {
         case 1:
             chan1 = new QLineSeries();
             for (quint32 i = 0; i < len; i++) {
                 chan1->append(i, samples[i]);
             }
-            show_chart(chan1_window, chan1, "Audio", 300, 0);
+            title = QString("Audio - ") + title;
+            show_chart(chan1_window, chan1, title, 300, 0);
             break;
         case 2:
             chan1 = new QLineSeries();
@@ -90,9 +94,8 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
                 chan1->append(i/2, samples[i]);
                 chan2->append(i/2, samples[i + 1]);
             }
-            // TODO: Which channel is which?
-            show_chart(chan1_window, chan1, "Left Channel", 0, 0);
-            show_chart(chan2_window, chan2, "Right Channel", 600, 0);
+            show_chart(chan1_window, chan1, QString("Left Channel - ") + title, 0, 0);
+            show_chart(chan2_window, chan2, QString("Right Channel - ") + title, 600, 0);
             break;
         default:
             // Do nothing.
@@ -100,7 +103,6 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
     }
 }
 
-// TODO: Pass in coordinates to show window. Also pass in different title.
 void WavWindow::show_chart(QMainWindow* window, QLineSeries* series, QString title, int x, int y) {
     QChart *chart = new QChart();
     chart->legend()->hide();
