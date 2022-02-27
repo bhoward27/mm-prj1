@@ -5,6 +5,7 @@
 #include <QMessageBox>
 #include <QDataStream>
 #include <QtCharts/QChartView>
+#include <QPoint>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -80,7 +81,7 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
             for (quint32 i = 0; i < len; i++) {
                 chan1->append(i, samples[i]);
             }
-            show_chart(chan1_window, chan1);
+            show_chart(chan1_window, chan1, "Audio", 300, 0);
             break;
         case 2:
             chan1 = new QLineSeries();
@@ -89,8 +90,9 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
                 chan1->append(i/2, samples[i]);
                 chan2->append(i/2, samples[i + 1]);
             }
-            show_chart(chan1_window, chan1);
-            show_chart(chan2_window, chan2);
+            // TODO: Which channel is which?
+            show_chart(chan1_window, chan1, "Left Channel", 0, 0);
+            show_chart(chan2_window, chan2, "Right Channel", 600, 0);
             break;
         default:
             // Do nothing.
@@ -99,19 +101,19 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
 }
 
 // TODO: Pass in coordinates to show window. Also pass in different title.
-void WavWindow::show_chart(QMainWindow* window, QLineSeries* series) {
+void WavWindow::show_chart(QMainWindow* window, QLineSeries* series, QString title, int x, int y) {
     QChart *chart = new QChart();
     chart->legend()->hide();
     chart->addSeries(series);
     chart->createDefaultAxes();
-    chart->setTitle("Simple line chart example");
+    chart->setTitle(title);
 
     QChartView *chartView = new QChartView(chart);
     chartView->setRenderHint(QPainter::Antialiasing);
 
     window = new QMainWindow();
     window->setCentralWidget(chartView);
-    window->resize(400, 300);
+    window->setGeometry(x, y, 600, 600);
     window->show();
 }
 
