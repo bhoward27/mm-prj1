@@ -1,6 +1,7 @@
 #include "wav.h"
 #include <QDataStream>
 #include <string>
+#include <stdexcept>
 
 using std::string;
 
@@ -93,7 +94,8 @@ WAVReadResult WAV::read(QFile& open_file) {
     in >> data_size;
 
     bytes = new char[data_size];
-    in.readBytes(bytes, data_size);
+    int res = in.readRawData(bytes, data_size);
+    if (bytes == nullptr || res == -1) throw std::runtime_error("bytes == nullptr or res == -1");
 
     return WAVReadResult::ok;
 }

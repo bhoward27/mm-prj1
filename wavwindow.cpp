@@ -1,13 +1,15 @@
 #include "wavwindow.h"
 #include "ui_wavwindow.h"
-#include "wav.h"
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QDataStream>
+#include <QtCharts/QChartView>
+#include <QtCharts/QLineSeries>
 #include <iostream>
 #include <string>
 #include <vector>
+
 
 using std::cout;
 using std::endl;
@@ -50,10 +52,68 @@ void WavWindow::on_selectFileButton_clicked() {
             cout << "Error." << endl;
             break;
     }
-    if (wav.bits_per_sample == 16) {
-        quint32 n = wav.data_size / (wav.num_channels * 2);
-        qint16* samples = (qint16*) wav.bytes;
+    switch (wav.bits_per_sample) {
+        case 8:
+            plot_waveform((quint8*) wav.bytes, wav.data_size, wav);
+            break;
+        case 16:
+            plot_waveform((qint16*) wav.bytes, wav.data_size/2, wav);
+            break;
+        default:
+            // Throw error?
+            cout << "bits per sample == " << wav.bits_per_sample << endl;
+            break;
     }
+}
+
+template<class T>
+void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
+    for (quint32 i = 0; i < len; i++) {
+        cout << samples[i] << ", ";
+    }
+    cout << endl;
+    vector<QLineSeries*> v_series;
+    QLineSeries* chan1 = nullptr;
+    QLineSeries* chan2 = nullptr;
+    switch (wav.num_channels) {
+        case 1:
+            chan1 = new QLineSeries();
+            v_series.push_back(chan1);
+            for (quint32 i = 0; i < len; i++) {
+                chan1->append(i, samples[i]);
+            }
+            break;
+        case 2:
+            chan1 = new QLineSeries();
+            chan2 = new QLineSeries();
+            v_series.push_back(chan1);
+            v_series.push_back(chan2);
+            for (quint32 i = 0; i < len - 1; i += 2) {
+                chan1->append(i/2, samples[i]);
+                chan2->append(i/2, samples[i + 1]);
+            }
+            break;
+        default:
+            // Do nothing.
+            break;
+    }
+
+    QChart *chart = new QChart();
+    chart->legend()->hide();
+//    for (auto series : v_series) {
+//        chart->addSeries(series);
+//    }
+    chart->addSeries(chan1);
+    chart->createDefaultAxes();
+    chart->setTitle("Simple line chart example");
+
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+
+
+    setCentralWidget(chartView);
+    resize(400, 300);
+    show();
 }
 
 //void WavWindow::read_test() {

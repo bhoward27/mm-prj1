@@ -2,6 +2,7 @@
 #define WAVWINDOW_H
 
 #include <QMainWindow>
+#include "wav.h"
 
 namespace Ui {
 class WavWindow;
@@ -20,6 +21,10 @@ private:
 
 private slots:
     void on_selectFileButton_clicked();
+
+private:
+    template<class T>
+    void plot_waveform(const T* samples, quint32 len, const WAV& wav);
 };
 
 #endif // WAVWINDOW_H
