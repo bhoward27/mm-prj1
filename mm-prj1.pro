@@ -12,11 +12,13 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     pngwindow.cpp \
+    wav.cpp \
     wavwindow.cpp
 
 HEADERS += \
     mainwindow.h \
     pngwindow.h \
+    wav.h \
     wavwindow.h
 
 FORMS += \
