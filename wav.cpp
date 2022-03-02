@@ -88,6 +88,9 @@ WAVReadResult WAV::read(QFile& open_file) {
         subchunk2_id += ch;
     }
     if (subchunk2_id != "data") {
+        if (subchunk2_id == "LIST") {
+            // TODO: Handle this case somehow.
+        }
         return WAVReadResult::not_data;
     }
 

@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QImage>
 #include <iostream>
+#include <memory>
 
 using std::cout;
 using std::endl;
@@ -11,6 +12,17 @@ using std::vector;
 using std::map;
 using std::sort;
 using std::array;
+using std::unique_ptr;
+
+const int N = 4;
+// N x N dither matrix.
+// TODO: Try with different dither matrix (e.g., Floyd-Steinberg)
+const int D[N][N] = {
+    {0, 8, 2, 10},
+    {12, 4, 14, 6},
+    {3, 11, 1, 9},
+    {15, 7, 13, 5}
+};
 
 PNGWindow::PNGWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -18,11 +30,18 @@ PNGWindow::PNGWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     red_hist_window = blue_hist_window = green_hist_window = nullptr;
+    red_hist_chartView = blue_hist_chartView = green_hist_chartView = nullptr;
 }
 
 PNGWindow::~PNGWindow()
 {
     delete ui;
+    cond_free(red_hist_window);
+    cond_free(green_hist_window);
+    cond_free(blue_hist_window);
+    cond_free(red_hist_chartView);
+    cond_free(green_hist_chartView);
+    cond_free(blue_hist_chartView);
 }
 
 void PNGWindow::on_selectFileButton_clicked() {
@@ -40,28 +59,58 @@ void PNGWindow::on_selectFileButton_clicked() {
     array<quint64, FREQ_LEN> blue_freqs = {0};
     auto height = img->height();
     auto width = img->width();
+
+    // TODO: Use 2D arrays to be more efficient.
+    vector<vector<int>> reds(height), greens(height), blues(height);
+
     for (int y = 0; y < height; ++y) {
         QRgb *line = reinterpret_cast<QRgb*>(img->scanLine(y));
         for (int x = 0; x < width; ++x) {
             QRgb &rgb = line[x];
-            red_freqs[qRed(rgb)]++;
-            green_freqs[qGreen(rgb)]++;
-            blue_freqs[qBlue(rgb)]++;
+            auto red = qRed(rgb);
+            auto green = qGreen(rgb);
+            auto blue = qBlue(rgb);
 
-            // TODO: While you're here, do some dithering stuff.
+            // For histograms.
+            red_freqs[red]++;
+            green_freqs[green]++;
+            blue_freqs[blue]++;
+
+            // Dither for each channel.
+            int d = D[y][x];
+            reds[y].push_back(dither(red, d));
+            greens[y].push_back(dither(green, d));
+            blues[y].push_back(dither(blue, d));
         }
     }
 
-    plot_histogram(QColor("red"), red_hist_window, red_freqs, "Red Histogram", 0, 0);
-    plot_histogram(QColor("green"), green_hist_window, green_freqs, "Green Histogram", 600, 0);
-    plot_histogram(QColor("blue"), blue_hist_window, blue_freqs, "Blue Histogram", 300, 600);
+    // TODO: Display original image.
+    QPixmap* pm = new QPixmap();
+    ui->labelImage->setPixmap(pm->fromImage(*img));
+
+    plot_freq_not_histogram(QColor("red"), red_hist_window, red_hist_chartView, red_freqs, "Red Histogram", 0, 0);
+    plot_freq_not_histogram(QColor("green"), green_hist_window, green_hist_chartView, green_freqs, "Green Histogram", 600, 0);
+    plot_freq_not_histogram(QColor("blue"), blue_hist_window, blue_hist_chartView, blue_freqs, "Blue Histogram", 300, 600);
+
+    // Display dithered image.
+
 }
 
-void PNGWindow::plot_histogram(QColor line_colour, QMainWindow* window, const array<quint64, FREQ_LEN>& colour_freqs, QString title, int x, int y) {
+// TODO: As currently implemented this is technically NOT a histogram, but merely a frequency plot.
+// Therefore, you should modify this function (and then name it plot_histogram).
+// Histogram is defined as follows:
+// "a diagram consisting of rectangles whose area is proportional to the frequency of a variable and
+// whose width is equal to the class interval."
+void PNGWindow::plot_freq_not_histogram(QColor line_colour, QMainWindow*& window, QChartView*& chartView, const array<quint64, FREQ_LEN>& colour_freqs, QString title, int x, int y) {
     QLineSeries* freq_series = new QLineSeries();
     freq_series->setColor(line_colour);
     for (int i = 0; i < FREQ_LEN; i++) {
         freq_series->append(i, colour_freqs[i]);
     }
-    show_chart(window, freq_series, title, x, y);
+    show_chart(window, chartView, freq_series, title, x, y);
+}
+
+// TODO: This could be a macro.
+int PNGWindow::dither(int a, int b) {
+    return (a > b) ? 255 : 0;
 }

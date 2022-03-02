@@ -2,6 +2,7 @@
 #define PNGWINDOW_H
 
 #include <QMainWindow>
+#include <QtCharts/QChartView>
 #include <array>
 
 const int FREQ_LEN = 256;
@@ -23,8 +24,12 @@ private:
     QMainWindow* red_hist_window;
     QMainWindow* green_hist_window;
     QMainWindow* blue_hist_window;
+    QChartView* red_hist_chartView;
+    QChartView* green_hist_chartView;
+    QChartView* blue_hist_chartView;
 
-    void plot_histogram(QColor line_colour, QMainWindow* window, const std::array<quint64, FREQ_LEN>& colour_freqs, QString title, int x, int y);
+    void plot_freq_not_histogram(QColor line_colour, QMainWindow*& window, QChartView*& chartView, const std::array<quint64, FREQ_LEN>& colour_freqs, QString title, int x, int y);
+    int dither(int a, int b);
 
 private slots:
     void on_selectFileButton_clicked();

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QChartView>
 #include "wav.h"
 
 namespace Ui {
@@ -21,6 +22,8 @@ private:
     Ui::WavWindow *ui;
     QMainWindow* chan1_window;
     QMainWindow* chan2_window;
+    QChartView* chan1_chartView;
+    QChartView* chan2_chartView;
 
 private slots:
     void on_selectFileButton_clicked();
