@@ -28,7 +28,6 @@ private slots:
 private:
     template<class T>
     void plot_waveform(const T* samples, quint32 len, const WAV& wav);
-    void show_chart(QMainWindow* window, QLineSeries* series, QString title, int x, int y);
 };
 
 #endif // WAVWINDOW_H

@@ -2,9 +2,12 @@
 #define PNGWINDOW_H
 
 #include <QMainWindow>
+#include <array>
+
+const int FREQ_LEN = 256;
 
 namespace Ui {
-class PNGReader;
+class PNGWindow;
 }
 
 class PNGWindow : public QMainWindow
@@ -16,7 +19,15 @@ public:
     ~PNGWindow();
 
 private:
-    Ui::PNGReader *ui;
+    Ui::PNGWindow *ui;
+    QMainWindow* red_hist_window;
+    QMainWindow* green_hist_window;
+    QMainWindow* blue_hist_window;
+
+    void plot_histogram(QColor line_colour, QMainWindow* window, const std::array<quint64, FREQ_LEN>& colour_freqs, QString title, int x, int y);
+
+private slots:
+    void on_selectFileButton_clicked();
 };
 
 #endif // PNGWINDOW_H

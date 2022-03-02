@@ -14,8 +14,6 @@ MainWindow::MainWindow(QWidget *parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete wav_window;
-    delete png_window;
 }
 
 void MainWindow::on_openWavButton_clicked()
