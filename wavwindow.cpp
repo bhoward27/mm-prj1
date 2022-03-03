@@ -20,18 +20,12 @@ WavWindow::WavWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::WavWindow)
 {
-    chan1_window = chan2_window = nullptr;
-    chan1_chartView = chan2_chartView = nullptr;
     ui->setupUi(this);
 }
 
 WavWindow::~WavWindow()
 {
     delete ui;
-    cond_free(chan1_window);
-    cond_free(chan2_window);
-    cond_free(chan1_chartView);
-    cond_free(chan2_chartView);
 }
 
 void WavWindow::on_selectFileButton_clicked() {

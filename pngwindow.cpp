@@ -13,6 +13,7 @@ using std::map;
 using std::sort;
 using std::array;
 using std::unique_ptr;
+using std::shared_ptr;
 
 const int N = 4;
 // N x N dither matrix.
@@ -29,19 +30,11 @@ PNGWindow::PNGWindow(QWidget *parent) :
     ui(new Ui::PNGWindow)
 {
     ui->setupUi(this);
-    red_hist_window = blue_hist_window = green_hist_window = nullptr;
-    red_hist_chartView = blue_hist_chartView = green_hist_chartView = nullptr;
 }
 
 PNGWindow::~PNGWindow()
 {
     delete ui;
-    cond_free(red_hist_window);
-    cond_free(green_hist_window);
-    cond_free(blue_hist_window);
-    cond_free(red_hist_chartView);
-    cond_free(green_hist_chartView);
-    cond_free(blue_hist_chartView);
 }
 
 void PNGWindow::on_selectFileButton_clicked() {
@@ -101,7 +94,13 @@ void PNGWindow::on_selectFileButton_clicked() {
 // Histogram is defined as follows:
 // "a diagram consisting of rectangles whose area is proportional to the frequency of a variable and
 // whose width is equal to the class interval."
-void PNGWindow::plot_freq_not_histogram(QColor line_colour, QMainWindow*& window, QChartView*& chartView, const array<quint64, FREQ_LEN>& colour_freqs, QString title, int x, int y) {
+void PNGWindow::plot_freq_not_histogram(
+        QColor line_colour,
+        unique_ptr<QMainWindow>& window,
+        shared_ptr<QChartView>& chartView,
+        const array<quint64, FREQ_LEN>& colour_freqs,
+        QString title, int x, int y
+) {
     QLineSeries* freq_series = new QLineSeries();
     freq_series->setColor(line_colour);
     for (int i = 0; i < FREQ_LEN; i++) {

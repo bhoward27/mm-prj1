@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QtCharts/QChartView>
 #include <array>
+#include <memory>
 
 const int FREQ_LEN = 256;
 
@@ -21,14 +22,16 @@ public:
 
 private:
     Ui::PNGWindow *ui;
-    QMainWindow* red_hist_window;
-    QMainWindow* green_hist_window;
-    QMainWindow* blue_hist_window;
-    QChartView* red_hist_chartView;
-    QChartView* green_hist_chartView;
-    QChartView* blue_hist_chartView;
+    std::unique_ptr<QMainWindow> red_hist_window, green_hist_window, blue_hist_window;
+    std::shared_ptr<QChartView> red_hist_chartView, blue_hist_chartView, green_hist_chartView;
 
-    void plot_freq_not_histogram(QColor line_colour, QMainWindow*& window, QChartView*& chartView, const std::array<quint64, FREQ_LEN>& colour_freqs, QString title, int x, int y);
+    void plot_freq_not_histogram(
+            QColor line_colour,
+            std::unique_ptr<QMainWindow>& window,
+            std::shared_ptr<QChartView>& chartView,
+            const std::array<quint64, FREQ_LEN>& colour_freqs,
+            QString title, int x, int y
+    );
     int dither(int a, int b);
 
 private slots:

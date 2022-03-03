@@ -5,6 +5,7 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QChartView>
 #include "wav.h"
+#include <memory>
 
 namespace Ui {
 class WavWindow;
@@ -20,10 +21,9 @@ public:
 
 private:
     Ui::WavWindow *ui;
-    QMainWindow* chan1_window;
-    QMainWindow* chan2_window;
-    QChartView* chan1_chartView;
-    QChartView* chan2_chartView;
+    std::unique_ptr<QMainWindow> chan1_window;
+    std::unique_ptr<QMainWindow> chan2_window;
+    std::shared_ptr<QChartView> chan1_chartView, chan2_chartView;
 
 private slots:
     void on_selectFileButton_clicked();
