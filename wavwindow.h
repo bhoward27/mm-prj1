@@ -23,7 +23,8 @@ private:
     Ui::WavWindow *ui;
     std::unique_ptr<QMainWindow> chan1_window;
     std::unique_ptr<QMainWindow> chan2_window;
-    std::shared_ptr<QChartView> chan1_chartView, chan2_chartView;
+    std::unique_ptr<QChartView> chan1_chartView, chan2_chartView;
+    std::unique_ptr<QChart> chart1, chart2;
 
 private slots:
     void on_selectFileButton_clicked();

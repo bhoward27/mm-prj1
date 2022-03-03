@@ -8,7 +8,8 @@
 
 void show_chart(
         std::unique_ptr<QMainWindow>& window,
-        std::shared_ptr<QChartView>& chartView,
+        std::unique_ptr<QChartView>& chartView,
+        std::unique_ptr<QChart>& chart,
         QLineSeries* series, QString title,
         int x, int y
 );

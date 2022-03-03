@@ -10,11 +10,13 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
 
 using std::cout;
 using std::endl;
 using std::string;
 using std::vector;
+using std::unique_ptr;
 
 WavWindow::WavWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -83,7 +85,7 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
                 chan1->append(i, samples[i]);
             }
             title = QString("Audio - ") + title;
-            show_chart(chan1_window, chan1_chartView, chan1, title, 300, 0);
+            show_chart(chan1_window, chan1_chartView, chart1, chan1, title, 300, 0);
             break;
         case 2:
             chan1 = new QLineSeries();
@@ -92,8 +94,8 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
                 chan1->append(i/2, samples[i]);
                 chan2->append(i/2, samples[i + 1]);
             }
-            show_chart(chan1_window, chan1_chartView, chan1, QString("Left Channel - ") + title, 0, 0);
-            show_chart(chan2_window, chan2_chartView, chan2, QString("Right Channel - ") + title, 600, 0);
+            show_chart(chan1_window, chan1_chartView, chart1, chan1, QString("Left Channel - ") + title, 0, 0);
+            show_chart(chan2_window, chan2_chartView, chart2, chan2, QString("Right Channel - ") + title, 600, 0);
             break;
         default:
             // Do nothing.

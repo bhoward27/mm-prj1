@@ -13,7 +13,6 @@ using std::map;
 using std::sort;
 using std::array;
 using std::unique_ptr;
-using std::shared_ptr;
 
 const int N = 4;
 // N x N dither matrix.
@@ -39,7 +38,7 @@ PNGWindow::~PNGWindow()
 
 void PNGWindow::on_selectFileButton_clicked() {
     QString file_name = QFileDialog::getOpenFileName(this, "Open the file");
-    QImage* img = new QImage(file_name);
+    unique_ptr<QImage> img(new QImage(file_name));
     if (img->isNull()) {
         // TODO: Use messagebox
         cout << "img is null." << endl;
@@ -78,12 +77,13 @@ void PNGWindow::on_selectFileButton_clicked() {
     }
 
     // TODO: Display original image.
-    QPixmap* pm = new QPixmap();
+    // Easier to just open a new window honestly.
+    unique_ptr<QPixmap> pm(new QPixmap());
     ui->labelImage->setPixmap(pm->fromImage(*img));
 
-    plot_freq_not_histogram(QColor("red"), red_hist_window, red_hist_chartView, red_freqs, "Red Histogram", 0, 0);
-    plot_freq_not_histogram(QColor("green"), green_hist_window, green_hist_chartView, green_freqs, "Green Histogram", 600, 0);
-    plot_freq_not_histogram(QColor("blue"), blue_hist_window, blue_hist_chartView, blue_freqs, "Blue Histogram", 300, 600);
+    plot_freq_not_histogram(QColor("red"), red_hist_window, red_hist_chartView, red_chart, red_freqs, "Red Histogram", 0, 0);
+    plot_freq_not_histogram(QColor("green"), green_hist_window, green_hist_chartView, green_chart, green_freqs, "Green Histogram", 600, 0);
+    plot_freq_not_histogram(QColor("blue"), blue_hist_window, blue_hist_chartView, blue_chart, blue_freqs, "Blue Histogram", 300, 600);
 
     // Display dithered image.
 
@@ -97,7 +97,8 @@ void PNGWindow::on_selectFileButton_clicked() {
 void PNGWindow::plot_freq_not_histogram(
         QColor line_colour,
         unique_ptr<QMainWindow>& window,
-        shared_ptr<QChartView>& chartView,
+        unique_ptr<QChartView>& chartView,
+        unique_ptr<QChart>& chart,
         const array<quint64, FREQ_LEN>& colour_freqs,
         QString title, int x, int y
 ) {
@@ -106,7 +107,7 @@ void PNGWindow::plot_freq_not_histogram(
     for (int i = 0; i < FREQ_LEN; i++) {
         freq_series->append(i, colour_freqs[i]);
     }
-    show_chart(window, chartView, freq_series, title, x, y);
+    show_chart(window, chartView, chart, freq_series, title, x, y);
 }
 
 // TODO: This could be a macro.
