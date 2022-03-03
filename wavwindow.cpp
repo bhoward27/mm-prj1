@@ -56,10 +56,10 @@ void WavWindow::on_selectFileButton_clicked() {
     switch (wav.bits_per_sample) {
         // TODO: The casting of wav.bytes probably wouldn't "work" on a Big-Endian machine.
         case 8:
-            plot_waveform((quint8*) wav.bytes, wav.data_size, wav);
+            plot_waveform((quint8*) wav.bytes.get(), wav.data_size, wav);
             break;
         case 16:
-            plot_waveform((qint16*) wav.bytes, wav.data_size/2, wav);
+            plot_waveform((qint16*) wav.bytes.get(), wav.data_size/2, wav);
             break;
         default:
             // Throw error?
@@ -73,29 +73,27 @@ void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
     // TODO: Show total number of samples and sampling rate.
     // TODO: Simply plot the samples as lines instead of doing interpolation between points.
     // TODO: Use "by value" QLineSeries instead of pointer (it will allocate its own data like vector).
-    QLineSeries* chan1 = nullptr;
-    QLineSeries* chan2 = nullptr;
     QString title = "";
     title += QString("TOTAL Number of Samples = ") + QString::number(len);
     title += QString(" - Sampling Rate = ") + QString::number(wav.sample_rate) + QString(" Hz");
     switch (wav.num_channels) {
         case 1:
-            chan1 = new QLineSeries();
+            chan1 = unique_ptr<QLineSeries>(new QLineSeries());
             for (quint32 i = 0; i < len; i++) {
                 chan1->append(i, samples[i]);
             }
             title = QString("Audio - ") + title;
-            show_chart(chan1_window, chan1_chartView, chart1, chan1, title, 300, 0);
+            show_chart(chan1_window, chan1_chartView, chart1, chan1.get(), title, 300, 0);
             break;
         case 2:
-            chan1 = new QLineSeries();
-            chan2 = new QLineSeries();
+            chan1 = unique_ptr<QLineSeries>(new QLineSeries());
+            chan2 = unique_ptr<QLineSeries>(new QLineSeries());
             for (quint32 i = 0; i < len - 1; i += 2) {
                 chan1->append(i/2, samples[i]);
                 chan2->append(i/2, samples[i + 1]);
             }
-            show_chart(chan1_window, chan1_chartView, chart1, chan1, QString("Left Channel - ") + title, 0, 0);
-            show_chart(chan2_window, chan2_chartView, chart2, chan2, QString("Right Channel - ") + title, 600, 0);
+            show_chart(chan1_window, chan1_chartView, chart1, chan1.get(), QString("Left Channel - ") + title, 0, 0);
+            show_chart(chan2_window, chan2_chartView, chart2, chan2.get(), QString("Right Channel - ") + title, 600, 0);
             break;
         default:
             // Do nothing.

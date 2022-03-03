@@ -81,9 +81,9 @@ void PNGWindow::on_selectFileButton_clicked() {
     unique_ptr<QPixmap> pm(new QPixmap());
     ui->labelImage->setPixmap(pm->fromImage(*img));
 
-    plot_freq_not_histogram(QColor("red"), red_hist_window, red_hist_chartView, red_chart, red_freqs, "Red Histogram", 0, 0);
-    plot_freq_not_histogram(QColor("green"), green_hist_window, green_hist_chartView, green_chart, green_freqs, "Green Histogram", 600, 0);
-    plot_freq_not_histogram(QColor("blue"), blue_hist_window, blue_hist_chartView, blue_chart, blue_freqs, "Blue Histogram", 300, 600);
+    plot_freq_not_histogram(QColor("red"), red_hist_window, red_hist_chartView, red_chart, red_freq_series, red_freqs, "Red Histogram", 0, 0);
+    plot_freq_not_histogram(QColor("green"), green_hist_window, green_hist_chartView, green_chart, green_freq_series, green_freqs, "Green Histogram", 600, 0);
+    plot_freq_not_histogram(QColor("blue"), blue_hist_window, blue_hist_chartView, blue_chart, blue_freq_series, blue_freqs, "Blue Histogram", 300, 600);
 
     // Display dithered image.
 
@@ -99,15 +99,16 @@ void PNGWindow::plot_freq_not_histogram(
         unique_ptr<QMainWindow>& window,
         unique_ptr<QChartView>& chartView,
         unique_ptr<QChart>& chart,
+        unique_ptr<QLineSeries>& freq_series,
         const array<quint64, FREQ_LEN>& colour_freqs,
         QString title, int x, int y
 ) {
-    QLineSeries* freq_series = new QLineSeries();
+    freq_series = unique_ptr<QLineSeries>(new QLineSeries());
     freq_series->setColor(line_colour);
     for (int i = 0; i < FREQ_LEN; i++) {
         freq_series->append(i, colour_freqs[i]);
     }
-    show_chart(window, chartView, chart, freq_series, title, x, y);
+    show_chart(window, chartView, chart, freq_series.get(), title, x, y);
 }
 
 // TODO: This could be a macro.

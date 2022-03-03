@@ -3,6 +3,7 @@
 
 #include <QtGlobal>
 #include <QFile>
+#include <memory>
 
 const quint16 LPCM = 1;
 
@@ -24,10 +25,9 @@ class WAV {
         quint16 block_align;
         quint16 bits_per_sample;
         quint32 data_size;
-        char* bytes;
+        std::unique_ptr<char[]> bytes;
 
         WAV();
-        ~WAV();
         WAVReadResult read(QFile& open_file);
 };
 

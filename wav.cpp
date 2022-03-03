@@ -2,18 +2,13 @@
 #include <QDataStream>
 #include <string>
 #include <stdexcept>
+#include <memory>
 
+using std::unique_ptr;
 using std::string;
 
 WAV::WAV() {
     num_channels = sample_rate = byte_rate = block_align = bits_per_sample = data_size = 0;
-    bytes = nullptr;
-}
-
-WAV::~WAV() {
-    if (bytes) {
-        delete[] bytes;
-    }
 }
 
 WAVReadResult WAV::read(QFile& open_file) {
@@ -96,9 +91,9 @@ WAVReadResult WAV::read(QFile& open_file) {
 
     in >> data_size;
 
-    bytes = new char[data_size];
-    int res = in.readRawData(bytes, data_size);
-    if (bytes == nullptr || res == -1) throw std::runtime_error("bytes == nullptr or res == -1");
+    bytes = unique_ptr<char[]>(new char[data_size]);
+    int res = in.readRawData(bytes.get(), data_size);
+    if (bytes == nullptr || bytes.get() == nullptr || res == -1) throw std::runtime_error("bytes == nullptr or res == -1");
 
     return WAVReadResult::ok;
 }
