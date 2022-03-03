@@ -27,6 +27,7 @@ private:
     std::unique_ptr<QChartView> red_hist_chartView, blue_hist_chartView, green_hist_chartView;
     std::unique_ptr<QChart> red_chart, blue_chart, green_chart;
     std::unique_ptr<QLineSeries> red_freq_series, green_freq_series, blue_freq_series;
+    std::unique_ptr<QMainWindow> original_image_window, dithered_image_window;
 
     void plot_freq_not_histogram(
             QColor line_colour,

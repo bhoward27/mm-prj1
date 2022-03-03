@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1197</width>
+    <height>1039</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="selectFileButton">
     <property name="geometry">
      <rect>
-      <x>270</x>
-      <y>180</y>
+      <x>590</x>
+      <y>60</y>
       <width>171</width>
       <height>24</height>
      </rect>
@@ -27,17 +27,30 @@
      <string>Select .png file</string>
     </property>
    </widget>
-   <widget class="QLabel" name="labelImage">
+   <widget class="QLabel" name="labelOriginalImage">
     <property name="geometry">
      <rect>
-      <x>60</x>
+      <x>20</x>
       <y>70</y>
-      <width>58</width>
-      <height>16</height>
+      <width>551</width>
+      <height>391</height>
      </rect>
     </property>
     <property name="text">
-     <string>Picture</string>
+     <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="labelDitherImage">
+    <property name="geometry">
+     <rect>
+      <x>637</x>
+      <y>105</y>
+      <width>541</width>
+      <height>461</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>
@@ -46,8 +59,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>21</height>
+     <width>1197</width>
+     <height>24</height>
     </rect>
    </property>
   </widget>

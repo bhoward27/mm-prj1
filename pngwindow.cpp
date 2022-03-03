@@ -38,8 +38,8 @@ PNGWindow::~PNGWindow()
 
 void PNGWindow::on_selectFileButton_clicked() {
     QString file_name = QFileDialog::getOpenFileName(this, "Open the file");
-    unique_ptr<QImage> img(new QImage(file_name));
-    if (img->isNull()) {
+    unique_ptr<QImage> og_img(new QImage(file_name));
+    if (og_img->isNull()) {
         // TODO: Use messagebox
         cout << "img is null." << endl;
         return;
@@ -49,14 +49,14 @@ void PNGWindow::on_selectFileButton_clicked() {
     array<quint64, FREQ_LEN> red_freqs = {0};
     array<quint64, FREQ_LEN> green_freqs = {0};
     array<quint64, FREQ_LEN> blue_freqs = {0};
-    auto height = img->height();
-    auto width = img->width();
+    auto height = og_img->height();
+    auto width = og_img->width();
 
     // TODO: Use 2D arrays to be more efficient.
-    vector<vector<int>> reds(height), greens(height), blues(height);
-
+    // vector<vector<int>> reds(height), greens(height), blues(height);
+    unique_ptr<QImage> dither_img(new QImage(og_img->size(), QImage::Format_RGB32));
     for (int y = 0; y < height; ++y) {
-        QRgb *line = reinterpret_cast<QRgb*>(img->scanLine(y));
+        QRgb *line = reinterpret_cast<QRgb*>(og_img->scanLine(y));
         for (int x = 0; x < width; ++x) {
             QRgb &rgb = line[x];
             auto red = qRed(rgb);
@@ -69,17 +69,28 @@ void PNGWindow::on_selectFileButton_clicked() {
             blue_freqs[blue]++;
 
             // Dither for each channel.
-            int d = D[y][x];
-            reds[y].push_back(dither(red, d));
-            greens[y].push_back(dither(green, d));
-            blues[y].push_back(dither(blue, d));
+            int d = D[y % N][x % N];
+            auto point = QPoint(x, y);
+            auto colour = QColor(dither(red, d), dither(green, d), dither(blue, d));
+            // NOTE: setPixelColor is NOT an efficient function. Documentation reccommends other ways.
+            dither_img->setPixelColor(point, colour);
+//            reds[y].push_back(dither(red, d));
+//            greens[y].push_back(dither(green, d));
+//            blues[y].push_back(dither(blue, d));
         }
     }
 
-    // TODO: Display original image.
-    // Easier to just open a new window honestly.
-    unique_ptr<QPixmap> pm(new QPixmap());
-    ui->labelImage->setPixmap(pm->fromImage(*img));
+    // Display original image.
+    *og_img = og_img->scaled(ui->labelOriginalImage->width(), ui->labelOriginalImage->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    unique_ptr<QPixmap> og_pm(new QPixmap());
+    *og_pm = og_pm->fromImage(*og_img);
+    ui->labelOriginalImage->setPixmap(*og_pm);
+
+    // Display dither image.
+    *dither_img = dither_img->scaled(ui->labelDitherImage->width(), ui->labelDitherImage->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    unique_ptr<QPixmap> dither_pm(new QPixmap());
+    *dither_pm = dither_pm->fromImage(*dither_img);
+    ui->labelDitherImage->setPixmap(*dither_pm);
 
     plot_freq_not_histogram(QColor("red"), red_hist_window, red_hist_chartView, red_chart, red_freq_series, red_freqs, "Red Histogram", 0, 0);
     plot_freq_not_histogram(QColor("green"), green_hist_window, green_hist_chartView, green_chart, green_freq_series, green_freqs, "Green Histogram", 600, 0);
@@ -113,5 +124,5 @@ void PNGWindow::plot_freq_not_histogram(
 
 // TODO: This could be a macro.
 int PNGWindow::dither(int a, int b) {
-    return (a > b) ? 255 : 0;
+    return (a > N * N * b) ? 255 : 0;
 }
