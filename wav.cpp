@@ -3,9 +3,12 @@
 #include <string>
 #include <stdexcept>
 #include <memory>
+#include <iostream>
 
 using std::unique_ptr;
 using std::string;
+using std::cout;
+using std::endl;
 
 WAV::WAV() {
     num_channels = sample_rate = byte_rate = block_align = bits_per_sample = data_size = 0;
@@ -54,7 +57,8 @@ WAVReadResult WAV::read(QFile& open_file) {
 
     in.setByteOrder(QDataStream::LittleEndian);
     quint32 subchunk1_size;
-    in >> subchunk1_size; // Expect 16.
+    in >> subchunk1_size;
+    if (subchunk1_size != 16) cout << "subchunk_1_size != 16" << endl;
 
     quint16 audio_format;
     in >> audio_format;
@@ -77,23 +81,42 @@ WAVReadResult WAV::read(QFile& open_file) {
     }
 
     // Extract "data" subchunk header.
+    read_data_header(in);
+
+    bytes = unique_ptr<char[]>(new char[data_size]);
+    int res = in.readRawData(bytes.get(), data_size);
+    if (bytes == nullptr || res == -1) throw std::runtime_error("bytes == nullptr or res == -1");
+
+    return WAVReadResult::ok;
+}
+
+void WAV::read_data_header(QDataStream& in) {
+    // Extract "data" subchunk header.
     string subchunk2_id = "";
+    char ch;
     for (int i = 0; i < 4; i++) {
         in >> ch;
         subchunk2_id += ch;
     }
     if (subchunk2_id != "data") {
         if (subchunk2_id == "LIST") {
-            // TODO: Handle this case somehow.
+            read_LIST_header(in);
+            read_data_header(in);
         }
-        return WAVReadResult::not_data;
+//        else {
+//            return WAVReadResult::not_data;
+//        }
     }
+    else {
+        in >> data_size;
+    }
+}
 
-    in >> data_size;
-
-    bytes = unique_ptr<char[]>(new char[data_size]);
-    int res = in.readRawData(bytes.get(), data_size);
-    if (bytes == nullptr || bytes.get() == nullptr || res == -1) throw std::runtime_error("bytes == nullptr or res == -1");
-
-    return WAVReadResult::ok;
+void WAV::read_LIST_header(QDataStream& in) {
+    quint32 size;
+    in >> size;
+    char ch;
+    for (quint32 i = 0; i < size; i++) {
+        in >> ch; // Eat the bytes.
+    }
 }

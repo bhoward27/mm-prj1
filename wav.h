@@ -29,6 +29,8 @@ class WAV {
 
         WAV();
         WAVReadResult read(QFile& open_file);
+        void read_data_header(QDataStream& in);
+        void read_LIST_header(QDataStream& in);
 };
 
 #endif // WAV_H

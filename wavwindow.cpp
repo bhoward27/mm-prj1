@@ -1,4 +1,4 @@
-#include "wavwindow.h"
+﻿#include "wavwindow.h"
 #include "ui_wavwindow.h"
 #include "utils.h"
 #include <QFile>
@@ -48,10 +48,26 @@ void WavWindow::on_selectFileButton_clicked() {
         case WAVReadResult::ok:
             // Do nothing.
             break;
-        default:
-            // TODO: Display error message.
-            cout << "Error." << endl;
+        case WAVReadResult::not_riff:
+            // TODO: Display error messagebox.
+            cout << "Error: not_riff" << endl;
             break;
+        case WAVReadResult::not_wav:
+            cout << "Error: not_wav" << endl;
+            break;
+        case WAVReadResult::not_fmt:
+            cout << "Error: not_fmt" << endl;
+            break;
+        case WAVReadResult::not_lpcm:
+            cout << "Error: not_lpcm" << endl;
+            break;
+        case WAVReadResult::not_mono_or_stereo:
+            cout << "Error: not_mono_or_stereo" << endl;
+            break;
+        case WAVReadResult::not_data:
+            cout << "Error: not_data" << endl;
+            break;
+
     }
     switch (wav.bits_per_sample) {
         // TODO: The casting of wav.bytes probably wouldn't "work" on a Big-Endian machine.
