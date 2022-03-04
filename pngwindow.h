@@ -39,6 +39,12 @@ private:
             QString title, int x, int y
     );
     int dither(int a, int b);
+    int find_nearest_colour(int a);
+    int err_disperse(int quant_err, int filter);
+    int get_colr_component(QRgb rgb, int i);
+    QRgb get_rgb(std::array<int, 3> colrs);
+    bool is_in_range(int a, int max);
+    int scale(int colr);
 
 private slots:
     void on_selectFileButton_clicked();
