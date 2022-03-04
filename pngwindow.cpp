@@ -8,9 +8,6 @@
 
 using std::cout;
 using std::endl;
-using std::vector;
-using std::map;
-using std::sort;
 using std::array;
 using std::unique_ptr;
 

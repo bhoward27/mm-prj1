@@ -70,9 +70,7 @@ void WavWindow::on_selectFileButton_clicked() {
 
 template<class T>
 void WavWindow::plot_waveform(const T* samples, quint32 len, const WAV& wav) {
-    // TODO: Show total number of samples and sampling rate.
     // TODO: Simply plot the samples as lines instead of doing interpolation between points.
-    // TODO: Use "by value" QLineSeries instead of pointer (it will allocate its own data like vector).
     QString title = "";
     title += QString("TOTAL Number of Samples = ") + QString::number(len);
     title += QString(" - Sampling Rate = ") + QString::number(wav.sample_rate) + QString(" Hz");

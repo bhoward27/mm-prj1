@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "wavwindow.h"
 #include "pngwindow.h"
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,7 +24,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-    WavWindow* wav_window;
-    PNGWindow* png_window;
+    std::unique_ptr<WavWindow> wav_window;
+    std::unique_ptr<PNGWindow> png_window;
+
 };
 #endif // MAINWINDOW_H

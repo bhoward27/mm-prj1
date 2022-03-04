@@ -11,7 +11,6 @@ CONFIG += c++11
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    png.cpp \
     pngwindow.cpp \
     utils.cpp \
     wav.cpp \
@@ -19,7 +18,6 @@ SOURCES += \
 
 HEADERS += \
     mainwindow.h \
-    png.h \
     pngwindow.h \
     utils.h \
     wav.h \

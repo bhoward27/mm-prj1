@@ -2,13 +2,15 @@
 #include "ui_mainwindow.h"
 #include "wavwindow.h"
 
+using std::unique_ptr;
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    wav_window = new WavWindow();
-    png_window = new PNGWindow();
+    wav_window = unique_ptr<WavWindow>(new WavWindow());
+    png_window = unique_ptr<PNGWindow>(new PNGWindow());
 }
 
 MainWindow::~MainWindow()

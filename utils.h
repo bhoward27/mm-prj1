@@ -14,9 +14,4 @@ void show_chart(
         int x, int y
 );
 
-template<class T>
-void cond_free(T* ptr) {
-    if (ptr) delete ptr;
-}
-
 #endif // UTILS_H
