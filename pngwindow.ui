@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1197</width>
-    <height>1039</height>
+    <width>1600</width>
+    <height>1050</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>590</x>
-      <y>60</y>
+      <y>20</y>
       <width>171</width>
       <height>24</height>
      </rect>
@@ -30,10 +30,10 @@
    <widget class="QLabel" name="labelOriginalImage">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>70</y>
-      <width>551</width>
-      <height>391</height>
+      <x>0</x>
+      <y>50</y>
+      <width>700</width>
+      <height>700</height>
      </rect>
     </property>
     <property name="text">
@@ -43,14 +43,40 @@
    <widget class="QLabel" name="labelDitherImage">
     <property name="geometry">
      <rect>
-      <x>637</x>
-      <y>105</y>
-      <width>541</width>
-      <height>461</height>
+      <x>730</x>
+      <y>50</y>
+      <width>700</width>
+      <height>700</height>
      </rect>
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>10</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Original Image</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>1030</x>
+      <y>10</y>
+      <width>191</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Image after Ordered Dithering</string>
     </property>
    </widget>
   </widget>
@@ -59,7 +85,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1197</width>
+     <width>1600</width>
      <height>24</height>
     </rect>
    </property>
