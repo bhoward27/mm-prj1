@@ -17,8 +17,8 @@
    <widget class="QPushButton" name="openPngButton">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>220</y>
+      <x>430</x>
+      <y>260</y>
       <width>100</width>
       <height>51</height>
      </rect>
@@ -30,10 +30,10 @@
    <widget class="QPushButton" name="openWavButton">
     <property name="geometry">
      <rect>
-      <x>240</x>
-      <y>230</y>
+      <x>260</x>
+      <y>260</y>
       <width>100</width>
-      <height>32</height>
+      <height>51</height>
      </rect>
     </property>
     <property name="text">

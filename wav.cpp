@@ -103,9 +103,6 @@ void WAV::read_data_header(QDataStream& in) {
             read_LIST_header(in);
             read_data_header(in);
         }
-//        else {
-//            return WAVReadResult::not_data;
-//        }
     }
     else {
         in >> data_size;

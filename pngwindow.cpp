@@ -11,31 +11,31 @@ using std::endl;
 using std::array;
 using std::unique_ptr;
 
-const int N = 4;
-// const int N = 8;
+// const int N = 4;
+const int N = 8;
 
 // 4 x 4 Bayer matrix
-const int D[N][N] = {
-    {0, 8, 2, 10},
-    {12, 4, 14, 6},
-    {3, 11, 1, 9},
-    {15, 7, 13, 5}
-};
+//const int D[N][N] = {
+//    {0, 8, 2, 10},
+//    {12, 4, 14, 6},
+//    {3, 11, 1, 9},
+//    {15, 7, 13, 5}
+//};
 
 // 8 x 8 Bayer matrix
-//const int D[N][N] = {
-//    // Rows 1 - 4
-//    {0, 32, 8, 40, 2, 34, 10, 42},
-//    {48, 16, 56, 24, 50, 18, 58, 26},
-//    {12, 44, 4, 36, 14, 46, 6, 38},
-//    {60, 28, 52, 20, 62, 30, 54, 22},
+const int D[N][N] = {
+    // Rows 1 - 4
+    {0, 32, 8, 40, 2, 34, 10, 42},
+    {48, 16, 56, 24, 50, 18, 58, 26},
+    {12, 44, 4, 36, 14, 46, 6, 38},
+    {60, 28, 52, 20, 62, 30, 54, 22},
 
-//    // Rows 5 - 8
-//    {3, 35, 11, 43, 1, 33, 9, 41},
-//    {51, 19, 59, 27, 49, 17, 57, 25},
-//    {15, 47, 7, 39, 13, 45, 5, 37},
-//    {63, 31, 55, 23, 61, 29, 53, 21},
-//};
+    // Rows 5 - 8
+    {3, 35, 11, 43, 1, 33, 9, 41},
+    {51, 19, 59, 27, 49, 17, 57, 25},
+    {15, 47, 7, 39, 13, 45, 5, 37},
+    {63, 31, 55, 23, 61, 29, 53, 21},
+};
 
 PNGWindow::PNGWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -81,18 +81,16 @@ void PNGWindow::on_selectFileButton_clicked() {
         }
     }
 
-    // For Bayer dither.
-    // unique_ptr<QImage> dither_img(new QImage(og_img->size(), QImage::Format_RGB32));
-
-    // For Floyd-Steinberg dither.
-    unique_ptr<QImage> dither_img(new QImage(*og_img));
+    unique_ptr<QImage> dither_img;
+    bool isBayer = ui->radioButtonBayer->isChecked();
+    if (isBayer) { // Bayer
+        dither_img = unique_ptr<QImage>(new QImage(og_img->size(), QImage::Format_RGB32));
+    }
+    else { // Floyd-Steinberg
+        dither_img = unique_ptr<QImage>(new QImage(*og_img));
+    }
     for (int y = 0; y < height; ++y) {
-        // Bayer dither.
-        // QRgb *line = reinterpret_cast<QRgb*>(og_img->scanLine(y));
-
-        // Floyd-steinberg dither.
-        QRgb* line = reinterpret_cast<QRgb*>(dither_img->scanLine(y));
-
+        QRgb* line = (isBayer) ? reinterpret_cast<QRgb*>(og_img->scanLine(y)) : reinterpret_cast<QRgb*>(dither_img->scanLine(y));
         for (int x = 0; x < width; ++x) {
             QRgb &rgb = line[x];
             int red = qRed(rgb);
@@ -101,65 +99,68 @@ void PNGWindow::on_selectFileButton_clicked() {
 
             // Bayer dither.
             // Dither for each channel.
-//            int d = D[y % N][x % N];
-//            auto point = QPoint(x, y);
-//            auto colour = QColor(dither(red, d), dither(green, d), dither(blue, d));
-//            // NOTE: setPixelColor is NOT an efficient function. Documentation reccommends other ways.
-//            dither_img->setPixelColor(point, colour);
-
-            // Floyd-Steinberg dither.
-            int new_red = find_nearest_colour(red);
-            int new_green = find_nearest_colour(green);
-            int new_blue = find_nearest_colour(blue);
-
-            QColor new_colour = QColor(new_red, new_green, new_blue);
-            dither_img->setPixelColor(QPoint(x, y), new_colour);
-
-            int red_quant_err = red - new_red;
-            int green_quant_err = green - new_green;
-            int blue_quant_err = blue - new_blue;
-            array<int, 3> quant_errs = {red_quant_err, green_quant_err, blue_quant_err};
-            array<int, 3> x_p_1_y_summands;
-            array<int, 3> x_m_1_y_p_1_summands;
-            array<int, 3> x_y_p_1_summands;
-            array<int, 3> x_p_1_y_p_1_summands;
-            for (int i = 0; i < 3; i++) {
-                int quant_err = quant_errs[i];
-                x_p_1_y_summands[i] = err_disperse(quant_err, 7);
-                x_m_1_y_p_1_summands[i] = err_disperse(quant_err, 3);
-                x_y_p_1_summands[i] = err_disperse(quant_err, 5);
-                x_p_1_y_p_1_summands[i] = err_disperse(quant_err, 1);
+            if (isBayer) {
+                int d = D[y % N][x % N];
+                auto point = QPoint(x, y);
+                auto colour = QColor(dither(red, d), dither(green, d), dither(blue, d));
+                // NOTE: setPixelColor is NOT an efficient function. Documentation reccommends other ways.
+                dither_img->setPixelColor(point, colour);
             }
+            else {
+                // Floyd-Steinberg dither.
+                int new_red = find_nearest_colour(red);
+                int new_green = find_nearest_colour(green);
+                int new_blue = find_nearest_colour(blue);
 
-            bool x_p_1_y_is_in_range = is_in_range(x + 1, width) && is_in_range(y, height);
-            bool x_m_1_y_p_1_is_in_range = is_in_range(x - 1, width) && is_in_range(y + 1, height);
-            bool x_y_p_1_is_in_range = is_in_range(x, width) && is_in_range(y + 1, height);
-            bool x_p_1_y_p_1_is_in_range = is_in_range(x + 1, width) && is_in_range(y + 1, height);
+                QColor new_colour = QColor(new_red, new_green, new_blue);
+                dither_img->setPixelColor(QPoint(x, y), new_colour);
 
-            array<int, 3> x_p_1_y_colrs;
-            array<int, 3> x_m_1_y_p_1_colrs;
-            array<int, 3> x_y_p_1_colrs;
-            array<int, 3> x_p_1_y_p_1_colrs;
-            // NOTE: pixel() is not efficient.
-            for (int i = 0; i < 3; i++) {
+                int red_quant_err = red - new_red;
+                int green_quant_err = green - new_green;
+                int blue_quant_err = blue - new_blue;
+                array<int, 3> quant_errs = {red_quant_err, green_quant_err, blue_quant_err};
+                array<int, 3> x_p_1_y_summands;
+                array<int, 3> x_m_1_y_p_1_summands;
+                array<int, 3> x_y_p_1_summands;
+                array<int, 3> x_p_1_y_p_1_summands;
+                for (int i = 0; i < 3; i++) {
+                    int quant_err = quant_errs[i];
+                    x_p_1_y_summands[i] = err_disperse(quant_err, 7);
+                    x_m_1_y_p_1_summands[i] = err_disperse(quant_err, 3);
+                    x_y_p_1_summands[i] = err_disperse(quant_err, 5);
+                    x_p_1_y_p_1_summands[i] = err_disperse(quant_err, 1);
+                }
+
+                bool x_p_1_y_is_in_range = is_in_range(x + 1, width) && is_in_range(y, height);
+                bool x_m_1_y_p_1_is_in_range = is_in_range(x - 1, width) && is_in_range(y + 1, height);
+                bool x_y_p_1_is_in_range = is_in_range(x, width) && is_in_range(y + 1, height);
+                bool x_p_1_y_p_1_is_in_range = is_in_range(x + 1, width) && is_in_range(y + 1, height);
+
+                array<int, 3> x_p_1_y_colrs;
+                array<int, 3> x_m_1_y_p_1_colrs;
+                array<int, 3> x_y_p_1_colrs;
+                array<int, 3> x_p_1_y_p_1_colrs;
+                // NOTE: pixel() is not efficient.
+                for (int i = 0; i < 3; i++) {
+                    if (x_p_1_y_is_in_range)
+                        x_p_1_y_colrs[i] = scale(get_colr_component(dither_img->pixel(x + 1, y), i) + x_p_1_y_summands[i]);
+                    if (x_m_1_y_p_1_is_in_range)
+                        x_m_1_y_p_1_colrs[i] = scale(get_colr_component(dither_img->pixel(x - 1, y + 1), i) + x_m_1_y_p_1_summands[i]);
+                    if (x_y_p_1_is_in_range)
+                        x_y_p_1_colrs[i] = scale(get_colr_component(dither_img->pixel(x, y + 1), i) + x_y_p_1_summands[i]);
+                    if (x_p_1_y_p_1_is_in_range)
+                        x_p_1_y_p_1_colrs[i] = scale(get_colr_component(dither_img->pixel(x + 1, y + 1), i) + x_p_1_y_p_1_summands[i]);
+                }
+
                 if (x_p_1_y_is_in_range)
-                    x_p_1_y_colrs[i] = scale(get_colr_component(dither_img->pixel(x + 1, y), i) + x_p_1_y_summands[i]);
+                    dither_img->setPixelColor(QPoint(x + 1, y), get_rgb(x_p_1_y_colrs));
                 if (x_m_1_y_p_1_is_in_range)
-                    x_m_1_y_p_1_colrs[i] = scale(get_colr_component(dither_img->pixel(x - 1, y + 1), i) + x_m_1_y_p_1_summands[i]);
+                    dither_img->setPixelColor(QPoint(x - 1, y + 1), get_rgb(x_m_1_y_p_1_colrs));
                 if (x_y_p_1_is_in_range)
-                    x_y_p_1_colrs[i] = scale(get_colr_component(dither_img->pixel(x, y + 1), i) + x_y_p_1_summands[i]);
+                    dither_img->setPixelColor(QPoint(x, y + 1), get_rgb(x_y_p_1_colrs));
                 if (x_p_1_y_p_1_is_in_range)
-                    x_p_1_y_p_1_colrs[i] = scale(get_colr_component(dither_img->pixel(x + 1, y + 1), i) + x_p_1_y_p_1_summands[i]);
+                    dither_img->setPixelColor(QPoint(x + 1, y + 1), get_rgb(x_p_1_y_p_1_colrs));
             }
-
-            if (x_p_1_y_is_in_range)
-                dither_img->setPixelColor(QPoint(x + 1, y), get_rgb(x_p_1_y_colrs));
-            if (x_m_1_y_p_1_is_in_range)
-                dither_img->setPixelColor(QPoint(x - 1, y + 1), get_rgb(x_m_1_y_p_1_colrs));
-            if (x_y_p_1_is_in_range)
-                dither_img->setPixelColor(QPoint(x, y + 1), get_rgb(x_y_p_1_colrs));
-            if (x_p_1_y_p_1_is_in_range)
-                dither_img->setPixelColor(QPoint(x + 1, y + 1), get_rgb(x_p_1_y_p_1_colrs));
         }
     }
 
@@ -178,9 +179,6 @@ void PNGWindow::on_selectFileButton_clicked() {
     plot_freq_not_histogram(QColor("red"), red_hist_window, red_hist_chartView, red_chart, red_freq_series, red_freqs, "Red Histogram", 0, 0);
     plot_freq_not_histogram(QColor("green"), green_hist_window, green_hist_chartView, green_chart, green_freq_series, green_freqs, "Green Histogram", 600, 0);
     plot_freq_not_histogram(QColor("blue"), blue_hist_window, blue_hist_chartView, blue_chart, blue_freq_series, blue_freqs, "Blue Histogram", 300, 600);
-
-    // Display dithered image.
-
 }
 
 // TODO: As currently implemented this is technically NOT a histogram, but merely a frequency plot.
