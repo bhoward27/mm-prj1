@@ -10,4 +10,6 @@
 # Running the program
 
  1. Click the green play button (Run) in Qt Creator. 
- 2. You should see a window open with two big buttons: WAV and PNG. Click one of them to get started. The rest should be straightforward.
+ 2. You should see a window open with two big buttons: WAV and PNG. Click one of them to get started.
+
+ Note: For the PNG portion, you can select the kind of dithering technique you would like to be used: Bayer matrix or Floyd-Steinberg. Unfortunately, in order to switch between modes you must open the file up all over again (i.e., you should select your dithering mode prior to opening the file, as the dithered image will not refresh after reselecting the dithering mode, only after opening a file).
